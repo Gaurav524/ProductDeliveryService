@@ -3,9 +3,29 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{24C72F23-C53D-40B8-BFFD-4C39D0D8C55E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Delivery", "Delivery", "{49176FBB-8A7E-47F4-BF9C-A045A31F16C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductDelivery.API", "Services\Delivery\ProductDelivery.API\ProductDelivery.API.csproj", "{5E46777F-CD81-4D7E-BE0F-54E20B34220A}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5E46777F-CD81-4D7E-BE0F-54E20B34220A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E46777F-CD81-4D7E-BE0F-54E20B34220A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E46777F-CD81-4D7E-BE0F-54E20B34220A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E46777F-CD81-4D7E-BE0F-54E20B34220A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{49176FBB-8A7E-47F4-BF9C-A045A31F16C5} = {24C72F23-C53D-40B8-BFFD-4C39D0D8C55E}
+		{5E46777F-CD81-4D7E-BE0F-54E20B34220A} = {49176FBB-8A7E-47F4-BF9C-A045A31F16C5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {485FBD7E-E0B4-42D0-9D1B-ECAC4D8DCED2}
