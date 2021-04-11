@@ -4,7 +4,7 @@ using MediatR;
 
 namespace DeliveryService.Api.Contracts
 {
-    public class DeliveryRequest : IRequest<DeliveryResponse>
+    public class DeliveryRequest : IRequest<List<DeliveryResponse>>
     {
         public string PostalCode { get; set; }
         public List<Product> Products { get; set; }

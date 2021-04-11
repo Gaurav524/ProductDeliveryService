@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace DeliveryService.Core.Interfaces
 {
     public interface IGreenDeliveryDateService
     {
-        bool IsGreenDelivery(DateTime potentialDeliveryTime);
+        Task<bool> IsGreenDelivery(DateTime potentialDeliveryTime);
     }
 }

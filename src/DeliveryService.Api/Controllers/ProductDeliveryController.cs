@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,7 +24,7 @@ namespace DeliveryService.Api.Controllers
         }
 
         [HttpPost("DeliveryDates")]
-        public async Task<ActionResult<DeliveryResponse>> GetDeliveryDates(
+        public async Task<ActionResult<List<DeliveryResponse>>> GetDeliveryDates(
             [FromBody] DeliveryRequest deliveryRequest, CancellationToken cancellationToken)
         {
             try
@@ -37,7 +38,7 @@ namespace DeliveryService.Api.Controllers
                _logger.LogError(ex.ToString());
             }
 
-            return new DeliveryResponse();
+            return new List<DeliveryResponse>();
         }
     }
 }

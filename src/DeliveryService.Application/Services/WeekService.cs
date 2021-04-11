@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Globalization;
+using DeliveryService.Core.Interfaces;
 
 namespace DeliveryService.Application.Services
 {
-    public class WeekService
+    public class WeekService :IWeekService
     {
         public int GetWeek(DateTime orderTime)
         {

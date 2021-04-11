@@ -1,4 +1,5 @@
 using System.Reflection;
+using DeliveryService.Api.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +24,8 @@ namespace DeliveryService.Api
         {
 
             services.AddControllers();
+            services.AddWeekService();
+            services.AddGreenDeliveryDateService();
             services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
             services.AddSwaggerGen(c =>
             {
