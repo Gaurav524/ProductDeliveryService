@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using DeliveryService.Api.Contracts;
+﻿using DeliveryService.Api.Contracts;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DeliveryService.Api.Controllers
 {
@@ -13,10 +12,13 @@ namespace DeliveryService.Api.Controllers
     [Route("[controller]")]
     public class ProductDeliveryController : ControllerBase
     {
+        private readonly ISender _mediator;
         private readonly ILogger<ProductDeliveryController> _logger;
 
-        public ProductDeliveryController(ILogger<ProductDeliveryController> logger)
+        public ProductDeliveryController(ISender mediator, 
+            ILogger<ProductDeliveryController> logger)
         {
+            _mediator = mediator;
             _logger = logger;
         }
 
@@ -24,7 +26,18 @@ namespace DeliveryService.Api.Controllers
         public async Task<ActionResult<DeliveryResponse>> GetDeliveryDates(
             [FromBody] DeliveryRequest deliveryRequest, CancellationToken cancellationToken)
         {
-            return null;
+            try
+            {
+                var response = await _mediator.Send(deliveryRequest, cancellationToken);
+                //HttpContext.Response.StatusCode = response.Status;
+                return response;
+            }
+            catch (Exception ex)
+            {
+               _logger.LogError(ex.ToString());
+            }
+
+            return new DeliveryResponse();
         }
     }
 }
