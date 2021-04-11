@@ -4,4 +4,9 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DeliveryService.Core\DeliveryService.Core.csproj" />
+    <ProjectReference Include="..\DeliveryService.Infrastructure\DeliveryService.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
