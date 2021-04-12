@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DeliveryService.Core.Exceptions;
 
 namespace DeliveryService.Api.Handlers
 {
@@ -39,6 +40,7 @@ namespace DeliveryService.Api.Handlers
                 if (!validator.IsValid)
                 {
                     _logger.LogError("Validation failed");
+                    throw new ValidationException();
                 }
 
                 var deliveryRequestSpecification = _mapper.Map<DeliveryRequestSpecification>(request);
@@ -53,7 +55,7 @@ namespace DeliveryService.Api.Handlers
             }
         }
 
-        public async Task<List<DeliveryResponse>> GetDeliveryDetails(DeliveryRequestSpecification deliveryRequest)
+        private async Task<List<DeliveryResponse>> GetDeliveryDetails(DeliveryRequestSpecification deliveryRequest)
         {
             var deliveryResponses = new List<DeliveryResponse>();
 
@@ -65,7 +67,7 @@ namespace DeliveryService.Api.Handlers
             return deliveryResponses;
         }
 
-        public async Task<DeliveryResponse> CalculateNextDeliveryTime(Product product, string postalCode)
+        private async Task<DeliveryResponse> CalculateNextDeliveryTime(Product product, string postalCode)
         {
             var deliveryStatus = "failure";
             var deliveryDetails = new List<DeliveryDetails>();
@@ -121,29 +123,18 @@ namespace DeliveryService.Api.Handlers
             return arrangedDeliveryDetails;
         }
 
-        //Add comments for the method
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="product"></param>
-        /// <param name="postalCode"></param>
-        /// <param name="potentialDeliveryTime"></param>
-        /// <returns></returns>
         private async Task<DeliveryDetails> CreateDeliveryDetails(Product product, string postalCode, DateTime potentialDeliveryTime)
         {
             var subtractResult = (potentialDeliveryTime.Date - product.OrderTime.Date).Days;
 
-            if (!(subtractResult < product.DaysInAdvance))
+            if (subtractResult < product.DaysInAdvance) return null;
+            var details = new DeliveryDetails
             {
-                return new()
-                {
-                    DeliveryDate = potentialDeliveryTime,
-                    PostalCode = postalCode,
-                    IsGreenDelivery = await _greenDeliveryDateService.IsGreenDelivery(potentialDeliveryTime)
-                };
-            }
-            return null;
+                DeliveryDate = potentialDeliveryTime,
+                PostalCode = postalCode,
+                IsGreenDelivery = await _greenDeliveryDateService.IsGreenDelivery(potentialDeliveryTime)
+            };
+            return details;
         }
     }
 }

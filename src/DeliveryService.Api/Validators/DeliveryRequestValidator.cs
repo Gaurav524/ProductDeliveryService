@@ -9,7 +9,9 @@ namespace DeliveryService.Api.Validators
         public DeliveryRequestValidator()
         {
             RuleFor(x => x.PostalCode).NotEmpty().NotNull();
+            RuleFor(x=>x.Products.Select(c=>c.ProductId)).NotEmpty().NotNull();
             RuleFor(x => x.Products.Select(c => c.Name)).NotEmpty().NotNull();
+            RuleFor(x => x.Products.Select(c => c.DeliveryDays)).NotEmpty().NotNull();
         }
     }
 }

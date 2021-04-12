@@ -8,12 +8,10 @@ namespace DeliveryService.Core.Models
         public string ProductId { get; set; }
         public string Name { get; set; }
         public List<string> DeliveryDays { get; set; }
-        public ProductType ProductType
-        {
-            get; set;
-        }
-        public int DaysInAdvance { get; set; }
+        public ProductType ProductType { get; set; } = ProductType.Normal;
 
-        public DateTime OrderTime { get; set; }
+        public int DaysInAdvance { get; set; } = 0;
+
+        public DateTime OrderTime { get; set; } = DateTime.Now;
     }
 }
