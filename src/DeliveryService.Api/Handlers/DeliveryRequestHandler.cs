@@ -112,17 +112,6 @@ namespace DeliveryService.Api.Handlers
             return deliveryResponse;
         }
 
-        private List<DeliveryDetails> RearrangeDeliveryDetails(List<DeliveryDetails> deliveryDetails, Product product)
-        {
-            var arrangedDeliveryDetails = new List<DeliveryDetails>();
-            var result = deliveryDetails.Where(c => c.IsGreenDelivery &&
-                                                    c.DeliveryDate <= product.OrderTime.AddDays(3));
-            arrangedDeliveryDetails.AddRange(result.ToList());
-            var deliveryDetailsEnumerable = deliveryDetails.Where(p => arrangedDeliveryDetails.All(p2 => p2.DeliveryDate != p.DeliveryDate));
-            arrangedDeliveryDetails.AddRange(deliveryDetailsEnumerable.ToList());
-            return arrangedDeliveryDetails;
-        }
-
         private async Task<DeliveryDetails> CreateDeliveryDetails(Product product, string postalCode, DateTime potentialDeliveryTime)
         {
             var subtractResult = (potentialDeliveryTime.Date - product.OrderTime.Date).Days;
@@ -135,6 +124,17 @@ namespace DeliveryService.Api.Handlers
                 IsGreenDelivery = await _greenDeliveryDateService.IsGreenDelivery(potentialDeliveryTime)
             };
             return details;
+        }
+
+        private List<DeliveryDetails> RearrangeDeliveryDetails(List<DeliveryDetails> deliveryDetails, Product product)
+        {
+            var arrangedDeliveryDetails = new List<DeliveryDetails>();
+            var result = deliveryDetails.Where(c => c.IsGreenDelivery &&
+                                                    c.DeliveryDate <= product.OrderTime.AddDays(3));
+            arrangedDeliveryDetails.AddRange(result.ToList());
+            var deliveryDetailsEnumerable = deliveryDetails.Where(p => arrangedDeliveryDetails.All(p2 => p2.DeliveryDate != p.DeliveryDate));
+            arrangedDeliveryDetails.AddRange(deliveryDetailsEnumerable.ToList());
+            return arrangedDeliveryDetails;
         }
     }
 }
