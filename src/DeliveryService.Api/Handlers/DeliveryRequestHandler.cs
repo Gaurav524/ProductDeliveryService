@@ -81,31 +81,30 @@ namespace DeliveryService.Api.Handlers
 
                 if (product.ProductType == ProductType.Temporary)
                 {
-                    var currentWeek = _weekService.GetWeek(DateTime.Now);
-                    var orderWeek = _weekService.GetWeek(product.OrderTime);
-                    if (!orderWeek.Equals(currentWeek)) continue;
-                    if (product.DeliveryDays.Contains(potentialDeliveryTime.DayOfWeek.ToString()))
-                    {
-                        deliveryStatus = "success";
-                        var deliveryDetail = await CreateDeliveryDetails(product, postalCode, potentialDeliveryTime);
-                        if (deliveryDetail == null) continue;
-                        deliveryDetails.Add(deliveryDetail);
-                    }
+                    if (!IsOkToOrder(product.OrderTime)) continue;
+
+                    if (!product.DeliveryDays.Contains(potentialDeliveryTime.DayOfWeek.ToString())) continue;
+
+                    deliveryStatus = "success";
+                    var deliveryDetail = await CreateDeliveryDetails(product, postalCode, potentialDeliveryTime);
+                    if (deliveryDetail == null) continue;
+                    deliveryDetails.Add(deliveryDetail);
                 }
                 else
                 {
-                    if (product.DeliveryDays.Contains(potentialDeliveryTime.DayOfWeek.ToString()))
-                    {
-                        deliveryStatus = "success";
-                        var deliveryDetail = await CreateDeliveryDetails(product, postalCode, potentialDeliveryTime);
-                        if (deliveryDetail == null) continue;
-                        deliveryDetails.Add(deliveryDetail);
-                    }
+                    if (!product.DeliveryDays.Contains(potentialDeliveryTime.DayOfWeek.ToString())) continue;
+
+                    deliveryStatus = "success";
+                    var deliveryDetail = await CreateDeliveryDetails(product, postalCode, potentialDeliveryTime);
+                    if (deliveryDetail == null) continue;
+                    deliveryDetails.Add(deliveryDetail);
                 }
             }
 
             deliveryResponse.Status = deliveryStatus;
-            var rearranged = RearrangeDeliveryDetails(deliveryDetails, product);
+
+            var rearranged = RearrangeDeliveryDetailsOnPriority(deliveryDetails, product);
+
             data.DeliveryDetails = rearranged;
             deliveryResponse.Data = data;
             deliveryResponse.Product = product.Name;
@@ -117,24 +116,37 @@ namespace DeliveryService.Api.Handlers
             var subtractResult = (potentialDeliveryTime.Date - product.OrderTime.Date).Days;
 
             if (subtractResult < product.DaysInAdvance) return null;
+
             var details = new DeliveryDetails
             {
                 DeliveryDate = potentialDeliveryTime,
                 PostalCode = postalCode,
                 IsGreenDelivery = await _greenDeliveryDateService.IsGreenDelivery(potentialDeliveryTime)
             };
+
             return details;
         }
 
-        private List<DeliveryDetails> RearrangeDeliveryDetails(List<DeliveryDetails> deliveryDetails, Product product)
+        private List<DeliveryDetails> RearrangeDeliveryDetailsOnPriority(List<DeliveryDetails> deliveryDetails, Product product)
         {
             var arrangedDeliveryDetails = new List<DeliveryDetails>();
             var result = deliveryDetails.Where(c => c.IsGreenDelivery &&
                                                     c.DeliveryDate <= product.OrderTime.AddDays(3));
+
             arrangedDeliveryDetails.AddRange(result.ToList());
-            var deliveryDetailsEnumerable = deliveryDetails.Where(p => arrangedDeliveryDetails.All(p2 => p2.DeliveryDate != p.DeliveryDate));
+
+            var deliveryDetailsEnumerable = deliveryDetails.Where(p => 
+                arrangedDeliveryDetails.All(p2 => p2.DeliveryDate != p.DeliveryDate));
+
             arrangedDeliveryDetails.AddRange(deliveryDetailsEnumerable.ToList());
             return arrangedDeliveryDetails;
+        }
+
+        private bool IsOkToOrder(DateTime orderTime)
+        {
+            var currentWeek = _weekService.GetWeek(DateTime.Now);
+            var orderWeek = _weekService.GetWeek(orderTime);
+            return orderWeek.Equals(currentWeek);
         }
     }
 }
