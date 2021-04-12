@@ -26,6 +26,7 @@ namespace DeliveryService.Api
             services.AddControllers();
             services.AddWeekService();
             services.AddGreenDeliveryDateService();
+            services.AddAutoMapperService();
             services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
             services.AddSwaggerGen(c =>
             {

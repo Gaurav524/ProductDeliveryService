@@ -22,5 +22,10 @@ namespace DeliveryService.Api.Extensions
             return services;
         }
 
+        public static IServiceCollection AddAutoMapperService(this IServiceCollection services)
+        {
+            services.AddAutoMapper(typeof(Converters.AutoMapperProfile));
+            return services;
+        }
     }
 }

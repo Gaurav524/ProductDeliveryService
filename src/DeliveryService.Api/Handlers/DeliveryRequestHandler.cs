@@ -1,13 +1,15 @@
-﻿using DeliveryService.Api.Contracts;
+﻿using AutoMapper;
+using DeliveryService.Api.Contracts;
+using DeliveryService.Api.Validators;
+using DeliveryService.Core.Interfaces;
+using DeliveryService.Core.Models;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using DeliveryService.Core.Interfaces;
-using DeliveryService.Core.Models;
-using Microsoft.Extensions.Logging;
 
 namespace DeliveryService.Api.Handlers
 {
@@ -15,21 +17,33 @@ namespace DeliveryService.Api.Handlers
     {
         private readonly IWeekService _weekService;
         private readonly IGreenDeliveryDateService _greenDeliveryDateService;
+        private readonly IMapper _mapper;
         private readonly ILogger<DeliveryRequestHandler> _logger;
 
         public DeliveryRequestHandler(IWeekService weekService, 
             IGreenDeliveryDateService greenDeliveryDateService,
+            IMapper mapper,
             ILogger<DeliveryRequestHandler> logger)
         {
-            _weekService = weekService;
-            _greenDeliveryDateService = greenDeliveryDateService;
-            _logger = logger;
+            _weekService = weekService ?? throw new ArgumentNullException(nameof(weekService));
+            _greenDeliveryDateService = greenDeliveryDateService ?? throw new ArgumentNullException(nameof(greenDeliveryDateService));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
         public async Task<List<DeliveryResponse>> Handle(DeliveryRequest request, CancellationToken cancellationToken)
         {
             try
             {
-                var deliveryResponses = await GetDeliveryDetails(request);
+                var validator = new DeliveryRequestValidator().Validate(request);
+                if (!validator.IsValid)
+                {
+                    _logger.LogError("Validation failed");
+                }
+
+                var deliveryRequestSpecification = _mapper.Map<DeliveryRequestSpecification>(request);
+
+                var deliveryResponses = await GetDeliveryDetails(deliveryRequestSpecification);
                 return deliveryResponses;
             }
             catch (Exception ex)
@@ -39,7 +53,7 @@ namespace DeliveryService.Api.Handlers
             }
         }
 
-        public async Task<List<DeliveryResponse>> GetDeliveryDetails(DeliveryRequest deliveryRequest)
+        public async Task<List<DeliveryResponse>> GetDeliveryDetails(DeliveryRequestSpecification deliveryRequest)
         {
             var deliveryResponses = new List<DeliveryResponse>();
 
@@ -89,12 +103,10 @@ namespace DeliveryService.Api.Handlers
             }
 
             deliveryResponse.Status = deliveryStatus;
-
-            //TODO : Check count and dont add if count zero
             var rearranged = RearrangeDeliveryDetails(deliveryDetails, product);
             data.DeliveryDetails = rearranged;
             deliveryResponse.Data = data;
-            //ToDO : Add product name in response
+            deliveryResponse.Product = product.Name;
             return deliveryResponse;
         }
 

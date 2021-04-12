@@ -30,7 +30,6 @@ namespace DeliveryService.Api.Controllers
             try
             {
                 var response = await _mediator.Send(deliveryRequest, cancellationToken);
-                //HttpContext.Response.StatusCode = response.Status;
                 return response;
             }
             catch (Exception ex)
